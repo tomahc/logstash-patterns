@@ -1,0 +1,6 @@
+SSLVPN_BASE_EVENT id=%{WORD:device} sn=%{WORD:serialnumber} time=%{QUOTEDSTRING} vp_time=%{QUOTEDSTRING} fw=%{IPORHOST:fwaddr} pri=%{INT} m=%{INT} c=%{INT} src=%{IPORHOST:sourceaddr} dst=%{IPORHOST:destinationaddr} user=%{QUOTEDSTRING:username} usr=%{QUOTEDSTRING} msg=%{QUOTEDSTRING:msg}
+
+SSLVPN_USER_EVENT %{SSLVPN_BASE_EVENT} rule=%{NOTSPACE:rule} proto=%{WORD:protocol} agent=%{QUOTEDSTRING:agent}
+SSLVPN_UI_LOGIN_EVENT %{SSLVPN_BASE_EVENT} portal=%{QUOTEDSTRING:portal} domain=%{QUOTEDSTRING:domain} agent=%{QUOTEDSTRING:agent}
+SSLVPN_UI_LOGOUT_EVENT %{SSLVPN_BASE_EVENT} active=%{INT:active} duration=%{INT:duration} agent=%{QUOTEDSTRING:agent}
+SSLVPN_CLIENT_LOGOUT_EVENT %{SSLVPN_BASE_EVENT} duration=%{INT:duration}
