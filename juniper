@@ -1,0 +1,39 @@
+# Juniper Firewalls
+#ZONE_XFER2 From\s*(([0-9.]+:[0-9]+)|([0-9.]+)|([A-Za-z0-9\s]+))\s*(to\szone|to)\s*(([0-9.]+:[0-9]+)|([0-9.]+)|([A-Za-z0-9\s]+))
+JUNIPER_TIMESTAMP \(%{GREEDYDATA}\)
+
+# EVENT PREFIX
+JUNIPER_EVENT_PREFIX %{DATA}:%{SPACE}NetScreen%{SPACE}device_id=%{USERNAME:device_id}%{SPACE}%{NOTSPACE}system-%{WORD:event_level}-%{INT:event_code}:%{SPACE}
+
+# TRAFFIC PATTERN
+JUNIPER_TRAFFICLOG %{JUNIPER_EVENT_PREFIX}start_time=%{QUOTEDSTRING:start_time}%{SPACE}duration=%{INT:duration}%{SPACE}policy_id=%{INT:policy_id}%{SPACE}service=%{DATA:service}%{SPACE}proto=%{INT:proto}%{SPACE}src%{SPACE}zone=%{GREEDYDATA:src_zone}%{SPACE}dst%{SPACE}zone=%{GREEDYDATA:dst_zone}%{SPACE}action=%{WORD:action}%{SPACE}sent=%{INT:send}%{SPACE}rcvd=%{INT:rcvd}%{SPACE}src=%{IPORHOST:src}%{SPACE}dst=%{IPORHOST:dst}%{SPACE}src_port=%{INT:src_port}%{SPACE}dst_port=%{INT:dst_port}%{SPACE}src-xlated%{SPACE}ip=%{IPORHOST:src_xlated_ip}%{SPACE}port=%{INT:src_xlated_port}%{SPACE}dst-xlated%{SPACE}ip=%{IPORHOST:dst_xlated_ip}%{SPACE}port=%{INT:dst_xlated_port}%{SPACE}session_id=%{INT:session_id}%{SPACE}reason=%{GREEDYDATA:reason}
+
+JUNIPER_TRAFFICLOG_DENY %{JUNIPER_EVENT_PREFIX}start_time=%{QUOTEDSTRING:start_time}%{SPACE}duration=%{INT:duration}%{SPACE}policy_id=%{INT:policy_id}%{SPACE}service=%{DATA:service}%{SPACE}proto=%{INT:proto}%{SPACE}src%{SPACE}zone=%{GREEDYDATA:src_zone}%{SPACE}dst%{SPACE}zone=%{GREEDYDATA:dst_zone}%{SPACE}action=%{WORD:action}%{SPACE}sent=%{INT:send}%{SPACE}rcvd=%{INT:rcvd}%{SPACE}src=%{IPORHOST:src}%{SPACE}dst=%{IPORHOST:dst}%{SPACE}src_port=%{INT:src_port}%{SPACE}dst_port=%{INT:dst_port}%{SPACE}session_id=%{INT:session_id}
+
+# EMERGENCY AND ALERT
+ZONE_XFER From%{SPACE}((%{IPORHOST:src}:%{INT:src_port})|(%{IPORHOST:src}))%{SPACE}(to%{SPACE}zone|to)%{SPACE}((%{IPORHOST:dst}:%{INT:dst_port})|(%{IPORHOST:dst}))
+JUNIPER_ALERTS %{JUNIPER_EVENT_PREFIX}%{DATA:event_type}!%{SPACE}%{ZONE_XFER},%{SPACE}proto%{SPACE}%{WORD:proto}%{DATA}\.%{SPACE}Occurred%{SPACE}%{INT:occurrence}%{SPACE}times
+
+# login
+LOGIN_ATTEMPT failed|successful
+#JUNIPER_ADM_EVENT %{JUNIPER_EVENT_PREFIX}%{SPACE}ADM:%{SPACE}%{DATA}%{SPACE}login%{SPACE}name%{DATA:username}%{SPACE}%{JUNIPER_TIMESTAMP}
+JUNIPER_ADM_EVENT1 %{JUNIPER_EVENT_PREFIX}ADM:%{SPACE}%{DATA}authentication%{SPACE}%{LOGIN_ATTEMPT:login_attempt}%{SPACE}for%{SPACE}login%{SPACE}name%{SPACE}%{USERNAME:username}:*%{SPACE}%{DATA:reason}%{SPACE}%{JUNIPER_TIMESTAMP}
+JUNIPER_LOGIN_WARN1 %{JUNIPER_EVENT_PREFIX}Admin%{SPACE}user%{SPACE}%{QUOTEDSTRING:username}%{SPACE}%{DATA:auth_event}%{SPACE}for%{SPACE}%{DATA:portal}%{SPACE}management%{SPACE}\(port%{SPACE}%{INT:port}\)%{SPACE}from%{SPACE}%{HOSTPORT:src}%{DATA}%{SPACE}%{JUNIPER_TIMESTAMP}
+
+# general
+JUNIPER_GENERAL %{JUNIPER_EVENT_PREFIX}%{DATA:reason}%{SPACE}\.*%{SPACE}%{JUNIPER_TIMESTAMP}
+
+# SNMP
+SNMP_UNKNOWN_COMMUNITY %{JUNIPER_EVENT_PREFIX}SNMP%{SPACE}request%{DATA}community%{SPACE}%{DATA:community}%{SPACE}at%{SPACE}%{HOSTPORT:src}%{DATA}%{SPACE}\.%{SPACE}%{JUNIPER_TIMESTAMP}
+# IKE
+IKE_PREFIX ike|IKE%{SPACE}<*%{IPORHOST:ike_addr}>*
+IKE_PHASE (p|P)hase%{SPACE}%{INT:ike_phase}
+IKE_MSG_ID msg%{SPACE}ID%{SPACE}<*%{WORD:ike_msg_id}>*
+# reject
+IKE_REJECT %{JUNIPER_EVENT_PREFIX}Rejected%{SPACE}an%{SPACE}IKE%{SPACE}packet%{SPACE}on%{SPACE}%{DATA:interface}%{SPACE}from%{SPACE}%{HOSTPORT:src}%{SPACE}to%{SPACE}%{HOSTPORT:dst}%{SPACE}with%{SPACE}cookies%{SPACE}%{DATA:ike_cookies}%{SPACE}because%{SPACE}%{DATA:reason}\.%{SPACE}%{JUNIPER_TIMESTAMP}
+# general event
+IKE_EVENT1 %{JUNIPER_EVENT_PREFIX}%{IKE_PREFIX}%{SPACE}:%{SPACE}%{DATA:reason}\.%{SPACE}%{JUNIPER_TIMESTAMP}
+# phase event
+IKE_EVENT2 %{JUNIPER_EVENT_PREFIX}%{IKE_PREFIX}%{SPACE}%{IKE_PHASE}%{SPACE}:%{SPACE}%{DATA:reason}\.%{SPACE}%{JUNIPER_TIMESTAMP}
+# phase with msg_id
+IKE_EVENT3 %{JUNIPER_EVENT_PREFIX}%{IKE_PREFIX}%{SPACE}%{IKE_PHASE}%{SPACE}%{IKE_MSG_ID}:%{SPACE}%{DATA:reason}\.%{SPACE}%{JUNIPER_TIMESTAMP}
