@@ -1,4 +1,6 @@
-SSLVPN_BASE_EVENT id=%{WORD:device} sn=%{WORD:serialnumber} time=%{QUOTEDSTRING} vp_time=%{QUOTEDSTRING} fw=%{IPORHOST:fwaddr} pri=%{INT} m=%{INT} c=%{INT} src=%{IPORHOST:sourceaddr} dst=%{IPORHOST:destinationaddr} user=%{QUOTEDSTRING:username} usr=%{QUOTEDSTRING} msg=%{QUOTEDSTRING:msg}
+# Still in developement!
+SSLVPN_EVENT_PREFIX %{DATA}%{SPACE}id=%{WORD:device_id}%{SPACE}sn=%{WORD:serialnumber}%{SPACE}time=%{QUOTEDSTRING:event_timestamp}
+SSLVPN_BASE_EVENT %{SSLVPN_EVENT_PREFIX}%{SPACE}vp_time=%{QUOTEDSTRING} fw=%{IPORHOST:fwaddr} pri=%{INT} m=%{INT} c=%{INT} src=%{IPORHOST:sourceaddr} dst=%{IPORHOST:destinationaddr} user=%{QUOTEDSTRING:username} usr=%{QUOTEDSTRING} msg=%{QUOTEDSTRING:msg}
 
 SSLVPN_USER_EVENT %{SSLVPN_BASE_EVENT} rule=%{NOTSPACE:rule} proto=%{WORD:protocol} agent=%{QUOTEDSTRING:agent}
 SSLVPN_UI_LOGIN_EVENT %{SSLVPN_BASE_EVENT} portal=%{QUOTEDSTRING:portal} domain=%{QUOTEDSTRING:domain} agent=%{QUOTEDSTRING:agent}
